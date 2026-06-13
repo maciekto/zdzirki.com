@@ -1,0 +1,12 @@
+services:
+  zdzirki:
+    build: .
+    image: zdzirki:latest
+    container_name: zdzirki
+    restart: unless-stopped
+    # cloudflared (na hoscie) kieruje tunel na http://localhost:10007.
+    # Bind do 127.0.0.1 => port widoczny tylko lokalnie (dla cloudflared),
+    # nieosiagalny z zewnatrz - ruch z netu idzie wylacznie przez Cloudflare.
+    # Potrzebujesz dostepu z LAN? zmien na "10007:80".
+    ports:
+      - "127.0.0.1:10007:80"
