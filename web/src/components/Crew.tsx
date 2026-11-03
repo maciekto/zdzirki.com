@@ -1,24 +1,31 @@
 import { useState } from 'react'
-import { MEMBERS, type Member } from '../members'
+import { MEMBERS, opggUrl, type Member } from '../members'
 import { placeholder } from '../placeholder'
 
 function MemberCard({ member, delay }: { member: Member; delay: number }) {
   const [src, setSrc] = useState(member.photo)
   return (
-    <figure className="card">
+    <a
+      className="card"
+      href={opggUrl(member.riotId)}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`${member.riotId} na op.gg (EUNE)`}
+    >
       <div className="frame" style={{ borderColor: member.frame, animationDelay: `${delay}s` }}>
         <img
           src={src}
           alt={member.name}
           onError={() => setSrc(placeholder(member.name, member.colors[0], member.colors[1]))}
         />
+        <span className="opgg-badge" aria-hidden="true">OP.GG ↗</span>
       </div>
-      <figcaption className="caption">{member.name}</figcaption>
-    </figure>
+      <div className="caption">{member.name}</div>
+    </a>
   )
 }
 
-/** Ekipa w równoległoboku: dwa u góry, dwa niżej przesunięte w prawo. */
+/** Ekipa w równoległoboku: dwa u góry, dwa niżej przesunięte w prawo. Klik = profil op.gg. */
 export function Crew({ active }: { active: boolean }) {
   const rows = [MEMBERS.slice(0, 2), MEMBERS.slice(2, 4)]
   return (
