@@ -1,1 +1,6 @@
 .DS_Store
+.env
+node_modules/
+web/dist/
+__pycache__/
+data/
