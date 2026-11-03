@@ -14,7 +14,7 @@ przeglądarka --HTTPS--> Cloudflare --tunel--> cloudflared (host) --HTTP--> 127.
 
 - Wgrywanie i usuwanie wymaga **hasła ekipy** (`UPLOAD_PASSWORD` w `.env`). Bez hasła upload jest wyłączony.
 - Limit **100 MB** na plik (sprawdzany w przeglądarce i na serwerze).
-- Max **30 s** — dłuższy klip przycina się w edytorze na stronie (suwaki start/koniec, podgląd fragmentu).
+- Max **60 s** — dłuższy klip przycina się w edytorze na stronie (suwaki start/koniec, podgląd fragmentu).
   Przeglądarka wysyła cały plik + zakres, serwer tnie i kompresuje w jednym przebiegu.
 - Kompresja: H.264 do **max 1080p / 60 fps** (bez powiększania), CRF 30, preset `slow`, AAC 96 kb/s,
   `faststart`. Surowy plik jest kasowany po kompresji. Jedna kompresja naraz (`nice`), żeby nie zarżnąć serwera.
@@ -23,7 +23,7 @@ przeglądarka --HTTPS--> Cloudflare --tunel--> cloudflared (host) --HTTP--> 127.
 - Klipy i ich lista leżą w wolumenie Dockera `zdzirki-data` — przeżywają rebuild i restart.
 
 Opcjonalne zmienne środowiskowe (w `docker-compose.yml` → `environment`):
-`MAX_UPLOAD_MB` (100), `MAX_DURATION_S` (30), `VIDEO_CRF` (30 — wyżej = mniejszy plik, gorsza jakość),
+`MAX_UPLOAD_MB` (100), `MAX_DURATION_S` (60), `VIDEO_CRF` (30 — wyżej = mniejszy plik, gorsza jakość),
 `VIDEO_PRESET` (slow), `CHUNK_MB` (16).
 
 ## Wdrożenie (Debian z działającym cloudflared)

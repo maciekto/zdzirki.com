@@ -17,7 +17,7 @@ export type Clip = {
 
 export type Config = { max_upload_mb: number; max_duration_s: number; upload_enabled: boolean }
 
-export const DEFAULT_CONFIG: Config = { max_upload_mb: 100, max_duration_s: 30, upload_enabled: true }
+export const DEFAULT_CONFIG: Config = { max_upload_mb: 100, max_duration_s: 60, upload_enabled: true }
 
 export class ApiError extends Error {
   status: number
