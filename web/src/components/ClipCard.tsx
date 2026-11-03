@@ -1,7 +1,8 @@
 import type { Clip } from '../api'
 import { formatMB, formatSeconds } from '../format'
 
-export function ClipCard({ clip, onDelete }: { clip: Clip; onDelete: () => void }) {
+/** `onDelete` tylko w trybie ekipy — bez niego nie ma kosza. */
+export function ClipCard({ clip, onDelete }: { clip: Clip; onDelete?: () => void }) {
   const meta = [`by ${clip.author || 'ekipa'}`, new Date(clip.created).toLocaleDateString('pl-PL')]
   if (clip.duration) meta.push(formatSeconds(clip.duration))
   if (clip.status === 'ready' && clip.size && clip.original_size) {
@@ -24,9 +25,11 @@ export function ClipCard({ clip, onDelete }: { clip: Clip; onDelete: () => void 
       </div>
       <h3 className="clip-title">{clip.title}</h3>
       <p className="clip-meta">{meta.join(' · ')}</p>
-      <button type="button" className="clip-del" title="Usuń klip" aria-label={`Usuń klip ${clip.title}`} onClick={onDelete}>
-        🗑
-      </button>
+      {onDelete && (
+        <button type="button" className="clip-del" title="Usuń klip" aria-label={`Usuń klip ${clip.title}`} onClick={onDelete}>
+          🗑
+        </button>
+      )}
     </article>
   )
 }

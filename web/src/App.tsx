@@ -6,9 +6,29 @@ import { EnterOverlay } from './components/EnterOverlay'
 import { Hall } from './components/Hall'
 import { MusicBox } from './components/MusicBox'
 import { useClips } from './useClips'
+import { HOLD_MS, useSecretChord } from './useSecretChord'
 
 type View = 'crew' | Category
 const VIEWS: View[] = ['crew', 'fame', 'shame']
+
+const ADMIN_KEY = 'zdzirki_admin'
+
+function loadAdmin(): boolean {
+  try {
+    return sessionStorage.getItem(ADMIN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function saveAdmin(on: boolean): void {
+  try {
+    if (on) sessionStorage.setItem(ADMIN_KEY, '1')
+    else sessionStorage.removeItem(ADMIN_KEY)
+  } catch {
+    // brak storage — tryb trzyma się tylko do odświeżenia
+  }
+}
 
 function viewFromHash(): View {
   const hash = window.location.hash.slice(1)
@@ -21,6 +41,22 @@ export default function App() {
   const [view, setView] = useState<View>(viewFromHash)
   const { clips, config, loadError, refresh } = useClips()
   useNoRightClick()
+
+  // Tryb ekipy (wgrywanie + usuwanie): przytrzymaj Z+D+R+K+I przez 3 s. To tylko ukrycie
+  // przycisków — prawdziwą ochroną jest hasło sprawdzane na serwerze.
+  const [admin, setAdmin] = useState(loadAdmin)
+  const [flash, setFlash] = useState<string | null>(null)
+  const holding = useSecretChord(() => {
+    const next = !admin
+    setAdmin(next)
+    saveAdmin(next)
+    setFlash(next ? '🔓 TRYB EKIPY WŁĄCZONY' : '🔒 TRYB EKIPY WYŁĄCZONY')
+  })
+  useEffect(() => {
+    if (!flash) return
+    const timer = setTimeout(() => setFlash(null), 2500)
+    return () => clearTimeout(timer)
+  }, [flash])
 
   useEffect(() => {
     const onHash = () => setView(viewFromHash())
@@ -48,8 +84,10 @@ export default function App() {
     setEntered(true)
   }
 
-  const fame = clips.filter((c) => c.category === 'fame')
-  const shame = clips.filter((c) => c.category === 'shame')
+  // nieudane klipy widzi tylko ekipa (może je usunąć), reszta widzi gotowe i kompresowane
+  const visible = admin ? clips : clips.filter((c) => c.status !== 'error')
+  const fame = visible.filter((c) => c.category === 'fame')
+  const shame = visible.filter((c) => c.category === 'shame')
   // „HALL OF ” chowa się na telefonie (.tab-long), żeby zakładki zmieściły się w jednej linii
   const tabs: { id: View; label: ReactNode; count?: number }[] = [
     { id: 'crew', label: '★ EKIPA ★' },
@@ -94,8 +132,8 @@ export default function App() {
 
       <main className="stage">
         <Crew active={view === 'crew'} />
-        <Hall category="fame" active={view === 'fame'} clips={fame} config={config} loadError={loadError} onChanged={refresh} />
-        <Hall category="shame" active={view === 'shame'} clips={shame} config={config} loadError={loadError} onChanged={refresh} />
+        <Hall category="fame" active={view === 'fame'} admin={admin} clips={fame} config={config} loadError={loadError} onChanged={refresh} />
+        <Hall category="shame" active={view === 'shame'} admin={admin} clips={shame} config={config} loadError={loadError} onChanged={refresh} />
       </main>
 
       <footer className="footer">
@@ -108,6 +146,16 @@ export default function App() {
         </div>
         <div className="blink">·:*¨༺ thanx 4 visiting ༻¨*:·</div>
       </footer>
+
+      {holding && (
+        <div className="unlock-toast" role="status">
+          <span>{admin ? '🔐 ZAMYKAM TRYB EKIPY...' : '🔐 ODBLOKOWUJĘ...'}</span>
+          <div className="unlock-bar">
+            <div style={{ animationDuration: `${HOLD_MS}ms` }} />
+          </div>
+        </div>
+      )}
+      {!holding && flash && <div className="unlock-toast" role="status">{flash}</div>}
 
       <DvdStar />
       <Sparkles />

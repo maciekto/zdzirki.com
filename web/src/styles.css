@@ -546,6 +546,33 @@ body {
 }
 .clip-del:active { border-style: inset; }
 
+/* ====== TRYB EKIPY (Z+D+R+K+I przez 3 s) ====== */
+.unlock-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 9997;
+  display: grid;
+  gap: 6px;
+  min-width: 260px;
+  padding: 8px 16px;
+  text-align: center;
+  font: bold 14px "Courier New", monospace;
+  color: #ffff00;
+  background: #000;
+  border: 3px ridge #ffff00;
+  box-shadow: 0 0 16px #ffff00;
+}
+.unlock-bar { height: 10px; border: 1px solid #ffff00; }
+.unlock-bar > div {
+  height: 100%;
+  width: 0;
+  background: repeating-linear-gradient(45deg, #ffff00 0 8px, #aa8800 8px 16px);
+  animation: unlockFill 3s linear forwards;
+}
+@keyframes unlockFill { to { width: 100%; } }
+
 /* ====== STOPKA / LICZNIK ====== */
 .footer {
   flex: none;
