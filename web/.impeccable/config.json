@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "src/styles.css"
+        ],
+        "createdAt": "2026-11-03T23:11:40.342Z",
+        "reason": "Celowy tęczowy tytuł WordArt: user zamówił kiczowaty design z lat 2000 i polecił zachować dokładnie ten sam wygląd przy migracji na React"
+      }
+    ]
+  }
+}
