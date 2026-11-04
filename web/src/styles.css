@@ -552,7 +552,7 @@ body {
   left: 50%;
   bottom: 24px;
   transform: translateX(-50%);
-  z-index: 9997;
+  z-index: 9999; /* nad popupem ENTER (9998) — kombinację można zrobić przed wejściem */
   display: grid;
   gap: 6px;
   min-width: 260px;

@@ -1,11 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 
-/** Fizyczne klawisze Z D R K I (e.code — działa niezależnie od Shift/Caps Lock). */
-const CHORD = ['KeyZ', 'KeyD', 'KeyR', 'KeyK', 'KeyI']
+/** Litery do przytrzymania naraz. */
+const LETTERS = ['z', 'd', 'r', 'k', 'i']
+/** Zapasowo fizyczne pozycje (US QWERTY), gdy e.key nie daje litery. */
+const CODE_LETTER: Record<string, string> = { KeyZ: 'z', KeyD: 'd', KeyR: 'r', KeyK: 'k', KeyI: 'i' }
 export const HOLD_MS = 3000
 
 /**
- * Przytrzymanie wszystkich klawiszy CHORD naraz przez HOLD_MS wywołuje `onTrigger`.
+ * Litera klawisza: najpierw to, co klawisz wpisuje (e.key — działa też na QWERTZ, gdzie
+ * „Z” leży na pozycji KeyY), potem fizyczna pozycja (e.code — gdy e.key to np. „Dead”).
+ */
+function letterOf(e: KeyboardEvent): string | null {
+  const char = e.key.length === 1 ? e.key.toLowerCase() : ''
+  if (LETTERS.includes(char)) return char
+  return CODE_LETTER[e.code] ?? null
+}
+
+/**
+ * Przytrzymanie wszystkich liter LETTERS naraz przez HOLD_MS wywołuje `onTrigger`.
  * Zwraca `true`, dopóki trwa przytrzymanie (do pokazania paska postępu).
  * Po wyzwoleniu trzeba puścić wszystkie klawisze, zanim kombinacja zadziała ponownie —
  * inaczej auto-powtarzanie klawiatury przełączałoby tryb co 3 s.
@@ -19,7 +31,8 @@ export function useSecretChord(onTrigger: () => void): boolean {
   })
 
   useEffect(() => {
-    const pressed = new Set<string>()
+    // fizyczny klawisz (e.code) -> litera; keyup kasujemy po e.code, bo e.key może się zmienić
+    const pressed = new Map<string, string>()
     let timer: number | undefined
     let armed = true
 
@@ -41,9 +54,11 @@ export function useSecretChord(onTrigger: () => void): boolean {
         reset()
         return
       }
-      if (!CHORD.includes(e.code)) return
-      pressed.add(e.code)
-      if (armed && timer === undefined && CHORD.every((key) => pressed.has(key))) {
+      const letter = letterOf(e)
+      if (!letter) return
+      pressed.set(e.code, letter)
+      const held = new Set(pressed.values())
+      if (armed && timer === undefined && LETTERS.every((l) => held.has(l))) {
         setHolding(true)
         timer = window.setTimeout(() => {
           timer = undefined
@@ -59,7 +74,7 @@ export function useSecretChord(onTrigger: () => void): boolean {
         reset()
         return
       }
-      if (!CHORD.includes(e.code)) return
+      if (!pressed.has(e.code)) return
       pressed.delete(e.code)
       cancel()
       if (pressed.size === 0) armed = true
